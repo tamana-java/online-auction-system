@@ -1,0 +1,168 @@
+Step 1: Create the Database
+CREATE DATABASE OnlineAuctionSystem;
+USE OnlineAuctionSystem;
+
+-- Step 2: Create the UserRole table
+CREATE TABLE UserRole (
+    role_id INT PRIMARY KEY,
+    role_name VARCHAR(50)
+);
+
+-- Step 3: Create the User table
+CREATE TABLE User (
+    user_id INT PRIMARY KEY,
+    username VARCHAR(100),
+    password VARCHAR(100),
+    email VARCHAR(100),
+    phone VARCHAR(15),
+    address TEXT,
+    role_id INT,
+    FOREIGN KEY (role_id) REFERENCES UserRole(role_id)
+);
+
+-- Step 4: Create the Category table
+CREATE TABLE Category (
+    category_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    description TEXT
+);
+
+-- Step 5: Create the AuctionHouse table
+CREATE TABLE AuctionHouse (
+    auction_house_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    location VARCHAR(255)
+);
+
+-- Step 6: Create the AuctionItem table
+CREATE TABLE AuctionItem (
+    item_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    description TEXT,
+    starting_price DECIMAL(10, 2),
+    current_price DECIMAL(10, 2),
+    start_time DATETIME,
+    end_time DATETIME,
+    status ENUM('Active', 'Closed'),
+    owner_id INT,
+    category_id INT,
+    auction_house_id INT,
+    FOREIGN KEY (owner_id) REFERENCES User(user_id),
+    FOREIGN KEY (category_id) REFERENCES Category(category_id),
+    FOREIGN KEY (auction_house_id) REFERENCES AuctionHouse(auction_house_id)
+);
+
+-- Step 7: Create the Bid table
+CREATE TABLE Bid (
+    bid_id INT PRIMARY KEY,
+    bid_amount DECIMAL(10, 2),
+    bid_time DATETIME,
+    status ENUM('Accepted', 'Rejected'),
+    user_id INT,
+    auction_item_id INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (auction_item_id) REFERENCES AuctionItem(item_id)
+);
+
+-- Step 8: Create the Payment table
+CREATE TABLE Payment (
+    payment_id INT PRIMARY KEY,
+    amount DECIMAL(10, 2),
+    payment_date DATETIME,
+    payment_method ENUM('CreditCard', 'PayPal'),
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id)
+);
+
+-- Step 9: Create the Invoice table
+CREATE TABLE Invoice (
+    invoice_id INT PRIMARY KEY,
+    amount DECIMAL(10, 2),
+    date DATETIME,
+    auction_item_id INT,
+    user_id INT,
+    payment_id INT,
+    FOREIGN KEY (auction_item_id) REFERENCES AuctionItem(item_id),
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (payment_id) REFERENCES Payment(payment_id)
+);
+
+-- Step 10: Create the Feedback table
+CREATE TABLE Feedback (
+    feedback_id INT PRIMARY KEY,
+    rating INT,
+    comments TEXT,
+    user_id INT,
+    auction_item_id INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (auction_item_id) REFERENCES AuctionItem(item_id)
+);
+
+-- Step 11: Create the Notification table
+CREATE TABLE Notification (
+    notification_id INT PRIMARY KEY,
+    message TEXT,
+    date DATETIME,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id)
+);
+
+-- Step 12: Create the Watchlist table
+CREATE TABLE Watchlist (
+    watchlist_id INT PRIMARY KEY,
+    user_id INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id)
+);
+
+-- Step 13: Create the Watchlist_AuctionItem table (junction table for Many-to-Many relationship between Watchlist and AuctionItem)
+CREATE TABLE Watchlist_AuctionItem (
+    watchlist_id INT,
+    auction_item_id INT,
+    PRIMARY KEY (watchlist_id, auction_item_id),
+    FOREIGN KEY (watchlist_id) REFERENCES Watchlist(watchlist_id),
+    FOREIGN KEY (auction_item_id) REFERENCES AuctionItem(item_id)
+);
+
+-- Step 14: Create the Transaction table
+CREATE TABLE Transaction (
+    transaction_id INT PRIMARY KEY,
+    transaction_date DATETIME,
+    user_id INT,
+    auction_item_id INT,
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (auction_item_id) REFERENCES AuctionItem(item_id)
+);
+
+-- Step 15: Create the Delivery table
+CREATE TABLE Delivery (
+    delivery_id INT PRIMARY KEY,
+    address TEXT,
+    user_id INT,
+    auction_item_id INT,
+    delivery_status ENUM('Shipped', 'Delivered'),
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (auction_item_id) REFERENCES AuctionItem(item_id)
+);
+
+-- Step 16: Create the Review table
+CREATE TABLE Review (
+    review_id INT PRIMARY KEY,
+    review_text TEXT,
+    user_id INT,
+    auction_item_id INT,
+    rating INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (auction_item_id) REFERENCES AuctionItem(item_id)
+);
+
+-- Step 17: Create the Comment table
+CREATE TABLE Comment (
+    comment_id INT PRIMARY KEY,
+    content TEXT,
+    user_id INT,
+    auction_item_id INT,
+    timestamp DATETIME,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (auction_item_id) REFERENCES AuctionItem(item_id)
+);
